@@ -1,4 +1,3 @@
-
 package kg.iuca.campuscard
 
 import android.os.Bundle
@@ -25,6 +24,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 CampusCardScreen()
+                Surface(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Greeting()
+                }
             }
         }
     }
@@ -278,5 +282,103 @@ fun ScheduleRow(
             fontSize = 13.sp,
             color = Color.Gray
         )
+    }
+}
+
+@Composable
+fun Greeting() {
+
+    // Список слов
+    val words = listOf(
+        "ANDROID",
+        "COMPOSE",
+        "KOTLIN",
+        "STUDENT",
+        "CAMPUS"
+    )
+
+    // Случайный выбор букв для чётных строк
+    val highlightedLetters = remember {
+        words.mapIndexed { index, word ->
+
+            if ((index + 1) % 2 == 0) {
+                word.indices
+                    .shuffled()
+                    .take(minOf(3, word.length))
+                    .toSet()
+            } else {
+                emptySet()
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        // Заголовок
+        Text(
+            text = "Alternating Row Colors",
+            style = MaterialTheme.typography.titleLarge
+        )
+
+        // Создаём строки из слов
+        words.forEachIndexed { index, word ->
+
+            // Проверяем чётность строки
+            val isEvenRow = (index + 1) % 2 == 0
+
+            // Выбираем основной цвет строки
+            val rowColor = if (isEvenRow) {
+                Color.Gray
+            } else {
+                MaterialTheme.colorScheme.primary
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(rowColor)
+                    .padding(6.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+
+                // Создаём отдельный Box для каждой буквы
+                word.forEachIndexed { letterIndex, letter ->
+
+                    // Проверяем, должна ли буква быть жёлтой
+                    val letterColor =
+                        if (
+                            isEvenRow &&
+                            letterIndex in highlightedLetters[index]
+                        ) {
+                            Color.Yellow
+                        } else {
+                            rowColor
+                        }
+
+                    Box(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .size(40.dp)
+                            .background(letterColor),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = letter.toString(),
+                            color = if (isEvenRow) {
+                                Color.Black
+                            } else {
+                                MaterialTheme.colorScheme.onPrimary
+                            }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
